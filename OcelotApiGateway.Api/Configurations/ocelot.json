@@ -1,0 +1,61 @@
+{
+  "Routes": [
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "IdentityService",
+
+      "DownstreamPathTemplate": "/api/Account/{everything}",
+      "DownstreamScheme": "https",
+
+      "UpstreamPathTemplate": "/v1/Account/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+
+      // jwt işlemleri
+      //"AuthenticationOptions": {
+      //  "AuthenticationProviderKey": "Bearer",
+      //  "AllowedScopes": []
+      //},
+
+      // polly işlemleri
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 2, // 2 kere istek timeout süresi içinde yanıt dönmezse anında 503 dönderecek iste saysı
+        "DurationOfBreak": 60000, // milisaniye olarak
+        "TimeoutValue": 5000 // istek zaman aşımı süresi milisaniye olarak
+      }
+    },
+    {
+      "UseServiceDiscovery": true,
+      "ServiceName": "BookService",
+
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+
+      "UpstreamPathTemplate": "/v1/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+
+      // jwt işlemleri
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+
+      // polly işlemleri
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 2, // 2 kere istek timeout süresi içinde yanıt dönmezse anında 503 dönderecek iste saysı
+        "DurationOfBreak": 60000, // milisaniye olarak
+        "TimeoutValue": 5000 // istek zaman aşımı süresi milisaniye olarak
+      }
+    }
+  ],
+
+  "GlobalConfiguration": {
+    //"BaseUrl": "http://webapigateway.api:5000",
+    "BaseUrl": "http://localhost:5000",
+    "ServiceDiscoveryProvider": {
+      //"Host": "c_consul",
+      "Host": "localhost",
+      "Port": 8500,
+      "Type": "Consul"
+    }
+  }
+}
