@@ -21,7 +21,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OcelotApiGateway.Api", "Oce
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BookService", "BookService", "{0043D411-4AE5-459E-A06A-108AD0682884}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BookService.Api", "BookService.Api\BookService.Api.csproj", "{279C62C1-33A8-48CE-873A-1911ADBF0D45}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BookService.Api", "BookService.Api\BookService.Api.csproj", "{279C62C1-33A8-48CE-873A-1911ADBF0D45}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13455E5D-04E6-4112-A248-6DD735D740E2}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

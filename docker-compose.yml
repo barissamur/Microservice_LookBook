@@ -1,0 +1,46 @@
+version: '24.0'
+
+services:
+  mssql:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    container_name: c_mssql
+    environment:
+      ACCEPT_EULA: 'Y'
+      MSSQL_SA_PASSWORD: 'Asdqwe123..'
+    ports:
+      - '1433:1433' 
+
+  mongodb:
+    image: mongo
+    container_name: c_mongodb
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: sa
+      MONGO_INITDB_ROOT_PASSWORD: Asdqwe123.
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+  consul:
+    image: consul:1.15.4
+    container_name: c_consul
+    command: "agent -dev -client 0.0.0.0 -ui"
+    ports:
+      - '8500:8500'
+    volumes:
+      - consul_data:/consul/data
+
+      
+  adminer:
+    image: adminer
+    container_name: c_adminer
+    restart: always
+    ports:
+      - '8080:8080'
+    volumes:
+      - adminer_data:/adminer/data
+
+volumes: 
+  mongo_data:
+  consul_data:
+  adminer_data:  
