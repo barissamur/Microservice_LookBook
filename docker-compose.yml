@@ -6,9 +6,11 @@ services:
     container_name: c_mssql
     environment:
       ACCEPT_EULA: 'Y'
-      MSSQL_SA_PASSWORD: 'Asdqwe123..'
+      SA_PASSWORD: 'Asdqwe123.'
     ports:
       - '1433:1433' 
+    volumes:
+      - mssql_data:/var/opt/mssql
 
   mongodb:
     image: mongo
@@ -41,6 +43,7 @@ services:
       - adminer_data:/adminer/data
 
 volumes: 
+  mssql_data:
   mongo_data:
   consul_data:
   adminer_data:  

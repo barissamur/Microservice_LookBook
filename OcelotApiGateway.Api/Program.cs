@@ -1,4 +1,5 @@
 
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
@@ -8,6 +9,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Serilog;
 using Serilog.Events;
+using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,16 +38,33 @@ builder.Configuration.AddJsonFile("Configurations/ocelot.json");
 builder.Services.AddOcelot(builder.Configuration).AddConsul().AddPolly();
 
 
-// ocelot için jwt 
-builder.Services.AddAuthentication("Bearer")
-    .AddJwtBearer("Bearer", options =>
+// Ocelot JWT Authentication configuration
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    Console.WriteLine(options);
+})
+.AddJwtBearer("Bearer", options =>
+{
+    //options.Authority = "https://localhost:5005"; // Yetkilendirme sunucusunun URL'si
+
+    options.TokenValidationParameters = new TokenValidationParameters
     {
-        options.Authority = "https://localhost:5005"; // Token'ý çýkaran yetkilendirme sunucusunun URL'si
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateAudience = false // Örneðin, audience kontrolü uygulamanýzýn gereksinimlerine göre ayarlanabilir
-        };
-    });
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("your_secret_key_here_please_change")),
+        ValidateIssuer = true,
+        ValidIssuer = "ExampleIssuer",
+        ValidateAudience = true,
+        ValidAudience = "ExampleAudience",
+        ValidateLifetime = true
+    };
+    Console.WriteLine(options);
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+});
+
 
 
 // polly 

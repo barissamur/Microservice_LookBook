@@ -1,8 +1,14 @@
 using BookService.Api.Extensions;
 using BookService.Api.Repository;
 using MongoDB.Driver;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+ 
+// Serilog configuration
+builder.Host.UseSerilog((ctx, lc) => lc
+    .WriteTo.Console()
+    .WriteTo.File("logs/log-.log", rollingInterval: RollingInterval.Day));
 
 //ocelot consul register ayarlarý
 builder.Services.ConfigureConsul(builder.Configuration);

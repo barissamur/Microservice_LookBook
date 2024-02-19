@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityServer.Api.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240219121541_iki")]
-    partial class iki
+    [Migration("20240219161759_ilk")]
+    partial class ilk
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

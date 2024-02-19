@@ -6,9 +6,15 @@ namespace IdentityServer.Api.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
 
     public class AdminController : ControllerBase
     {
+        [HttpGet("check")]
+        public string Get()
+        {
+            return "Ok";
+        }
+
     }
 }

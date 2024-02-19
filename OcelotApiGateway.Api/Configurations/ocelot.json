@@ -39,6 +39,11 @@
         "AllowedScopes": []
       },
 
+      // headera ekleyip servisten alacağım bunu
+      "AddHeadersToRequest": {
+        "X-Custom-Header": "Value"
+      },
+
       // polly işlemleri
       "QoSOptions": {
         "ExceptionsAllowedBeforeBreaking": 2, // 2 kere istek timeout süresi içinde yanıt dönmezse anında 503 dönderecek iste saysı

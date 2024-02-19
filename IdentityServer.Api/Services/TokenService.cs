@@ -17,24 +17,27 @@ public class TokenService
         _configuration = configuration;
     }
 
-   public string GenerateJwtToken(IdentityUser user)
+    public string GenerateJwtToken(IdentityUser user)
     {
         var tokenHandler = new JwtSecurityTokenHandler();
         var key = Encoding.ASCII.GetBytes(_configuration["JwtSettings:SecretKey"]);
         var tokenDescriptor = new SecurityTokenDescriptor
         {
-            Subject = new ClaimsIdentity(new Claim[] 
+            Subject = new ClaimsIdentity(new[]
             {
-                new Claim(ClaimTypes.Name, user.UserName),
-                new Claim(ClaimTypes.NameIdentifier, user.Id),
-                // Buraya gerekli olan diğer claim'leri ekleyebilirsiniz
-            }),
+            new Claim(ClaimTypes.Name, user.UserName),
+            new Claim(ClaimTypes.NameIdentifier, user.Id),
+            // Buraya gerekli olan diğer claim'leri ekleyebilirsiniz
+        }),
             Expires = DateTime.UtcNow.AddMinutes(double.Parse(_configuration["JwtSettings:AccessTokenExpirationMinutes"])),
-            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
+            SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature),
+            Issuer = _configuration["JwtSettings:Issuer"], // Issuer değerini ekleyin
+            Audience = _configuration["JwtSettings:Audience"] // Audience değerini ekleyin
         };
 
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
     }
+
 }
 
