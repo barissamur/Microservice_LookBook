@@ -1,6 +1,7 @@
 ﻿using BookService.Api.Models;
 using BookService.Api.Repository;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace BookService.Api.Controller;
 
@@ -10,6 +11,10 @@ public class BooksController : ControllerBase
 {
     private readonly BookRepository _bookRepository;
     private readonly ILogger<BooksController> _logger;
+
+    public string UserId => User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+    public string UserName => User.FindFirst(ClaimTypes.Name)?.Value;
+
 
     public BooksController(BookRepository bookRepository
         , ILogger<BooksController> logger)
@@ -41,14 +46,11 @@ public class BooksController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAll()
     {
-        var userId = HttpContext.Request.Headers;
-        var userId2 = HttpContext.Request.Headers["X-User-Id"];
+        _logger.LogInformation("Veri çekme isteği. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
 
-        _logger.LogInformation("Veri çekme isteği. Kullanıcı id: {Identity}", userId);
         var books = await _bookRepository.GetAllAsync();
 
-
-        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {Identity}", userId);
+        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
         return Ok(books);
     }
 

@@ -30,13 +30,15 @@ public static class ConsulRegistration
         var serviceName = configuration.GetValue<string>("ConsulConfig:ServiceName");
         var serviceId = configuration.GetValue<string>("ConsulConfig:ServiceId");
 
+        var a = $"{uri.Scheme}://{uri.Host}:{uri.Port}/health";
+
         var registration = new AgentServiceRegistration()
         {
             ID = serviceId ?? "IdentityService",
             Name = serviceName ?? "IdentityService",
             Address = $"{uri.Host}",
             Port = uri.Port,
-            Tags = [serviceName, serviceId],
+            Tags = [serviceName, serviceId]
         };
 
         logger.LogInformation("Registering with Consul");

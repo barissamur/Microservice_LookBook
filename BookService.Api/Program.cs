@@ -1,10 +1,11 @@
 using BookService.Api.Extensions;
 using BookService.Api.Repository;
 using MongoDB.Driver;
+using OcelotApiGateway.Api.Middleware;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
- 
+
 // Serilog configuration
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
@@ -55,6 +56,7 @@ var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 // Consul ile kayýt iþlemi
 app.RegisterWithConsul(lifetime, builder.Configuration);
 
+app.UseMiddleware<CustomHeaderMiddleware>();
 
 app.UseHttpsRedirection();
 

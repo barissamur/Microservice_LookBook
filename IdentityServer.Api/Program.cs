@@ -14,6 +14,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
+//health check için
+builder.Services.AddHealthChecks();
+
 //ocelot consul register ayarlarý
 builder.Services.ConfigureConsul(builder.Configuration);
 
@@ -21,7 +24,6 @@ builder.Services.ConfigureConsul(builder.Configuration);
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
     .WriteTo.File("logs/log-.log", rollingInterval: RollingInterval.Day));
-
 
 // identity için
 builder.Services.AddDbContext<ApplicationDbContext>(o =>
@@ -63,14 +65,13 @@ builder.Services.AddAuthentication(x =>
 //jwt servis
 builder.Services.AddScoped<TokenService>();
 
-
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
 
 // Uygulama baþlatýldýðýnda rolleri oluþtur
 
@@ -97,6 +98,7 @@ var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 // Consul ile kayýt iþlemi
 app.RegisterWithConsul(lifetime, builder.Configuration);
 
+app.UseRouting();
 
 app.UseHttpsRedirection();
 
@@ -104,5 +106,10 @@ app.UseAuthentication(); // JWT için
 app.UseAuthorization();
 
 app.MapControllers();
+
+//health check için
+app.UseHealthChecks("/health");
+
+
 
 app.Run();

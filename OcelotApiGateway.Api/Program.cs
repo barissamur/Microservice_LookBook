@@ -9,6 +9,7 @@ using Polly;
 using Polly.Extensions.Http;
 using Serilog;
 using Serilog.Events;
+using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -119,13 +120,39 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+ 
+//ocelot servise giderken header'a eklenecekler
+app.Use(async (context, next) =>
+{
+    if (context.Request.Headers.TryGetValue("Authorization", out var token))
+    {
+        token = token.ToString().Substring("Bearer ".Length).Trim();
 
+        var handler = new JwtSecurityTokenHandler();
+        var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
 
-//ocelot
+        var userId = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "nameid")?.Value;
+        var userName = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "unique_name")?.Value;
+
+        if (!string.IsNullOrEmpty(userId))
+        {
+            context.Request.Headers.Add("X-User-Id", userId);
+        }
+
+        if (!string.IsNullOrEmpty(userName))
+        {
+            context.Request.Headers.Add("X-User-Name", userName);
+        }
+    }
+
+    await next.Invoke();
+});
+
 await app.UseOcelot();
-
+ 
 app.UseAuthentication();
 app.UseAuthorization();
+
 
 app.MapControllers();
 
