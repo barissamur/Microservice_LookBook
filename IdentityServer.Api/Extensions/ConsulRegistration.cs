@@ -38,16 +38,22 @@ public static class ConsulRegistration
             Name = serviceName ?? "IdentityService",
             Address = $"{uri.Host}",
             Port = uri.Port,
-            Tags = [serviceName, serviceId]
+            Tags = [serviceName, serviceId],
+            //Check = new AgentServiceCheck
+            //{
+            //    HTTP = $"{uri.Scheme}://{uri.Host}:{uri.Port}/health",
+            //    Interval = TimeSpan.FromSeconds(10),
+            //    Timeout = TimeSpan.FromSeconds(5)
+            //}
         };
 
-        logger.LogInformation("Registering with Consul");
+        logger.LogInformation("Registering with Consul {registration}", registration);
         consulClient.Agent.ServiceDeregister(registration.ID).Wait();
         consulClient.Agent.ServiceRegister(registration).Wait();
 
         lifetime.ApplicationStopping.Register(() =>
         {
-            logger.LogInformation("Deregistering from Consul");
+            logger.LogInformation("Deregistering from Consul {registration}", registration);
             consulClient.Agent.ServiceDeregister(registration.ID).Wait();
         });
 

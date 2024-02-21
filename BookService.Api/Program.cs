@@ -42,6 +42,23 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+//app.Use(async (context, next) =>
+//{
+//    var request = context.Request;
+
+//    var fromOcelot = context.Request.Headers["X-Ocelot-Secret"].FirstOrDefault();
+
+//    if (fromOcelot == "fromOcelot") 
+//        await next.Invoke();
+
+//    else
+//    {
+//        context.Response.StatusCode = 403; // Eriþim Reddedildi
+//        await context.Response.WriteAsync("Access denied");
+//    }
+
+//});
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {

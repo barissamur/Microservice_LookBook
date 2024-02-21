@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Ocelot.DependencyInjection;
+using Ocelot.Provider.Consul;
 using Serilog;
 using System.Text;
 
@@ -14,11 +16,12 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 
-//health check için
-builder.Services.AddHealthChecks();
-
 //ocelot consul register ayarlarý
 builder.Services.ConfigureConsul(builder.Configuration);
+
+builder.Services
+    .AddOcelot()
+    .AddConsul();
 
 // Serilog configuration
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -32,7 +35,6 @@ builder.Services.AddDbContext<ApplicationDbContext>(o =>
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<ApplicationDbContext>()
      .AddDefaultTokenProviders();
-
 
 
 // JWT Authentication
@@ -70,10 +72,12 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//health check için
+builder.Services.AddHealthChecks();
+
 var app = builder.Build();
 
 
-// Uygulama baþlatýldýðýnda rolleri oluþtur
 
 // Uygulama baþlamadan önce rolleri oluþtur
 using (var scope = app.Services.CreateScope())
@@ -97,7 +101,6 @@ var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
 // Consul ile kayýt iþlemi
 app.RegisterWithConsul(lifetime, builder.Configuration);
-
 app.UseRouting();
 
 app.UseHttpsRedirection();
@@ -109,7 +112,6 @@ app.MapControllers();
 
 //health check için
 app.UseHealthChecks("/health");
-
 
 
 app.Run();

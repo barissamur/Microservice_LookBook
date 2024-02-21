@@ -1,4 +1,5 @@
 ﻿using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OcelotApiGateway.Api.Middleware;
 
@@ -15,6 +16,20 @@ public class CustomHeaderMiddleware
 
     public async Task Invoke(HttpContext context)
     {
+        // gelen istek ocelot'tan mı geliyor
+        var request = context.Request;
+
+        var fromOcelot = context.Request.Headers["X-Ocelot-Secret"].FirstOrDefault();
+
+        if (fromOcelot != "fromOcelot")
+
+        {
+            context.Response.StatusCode = 403; // Erişim Reddedildi
+            await context.Response.WriteAsync("Access denied");
+        }
+
+
+        // kullanıcı id ve name headera ekle
         var userId = context.Request.Headers["X-User-Id"].FirstOrDefault();
         var userName = context.Request.Headers["X-User-Name"].FirstOrDefault();
 

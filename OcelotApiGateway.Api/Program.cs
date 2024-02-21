@@ -68,48 +68,6 @@ builder.Services.AddAuthentication(options =>
 
 
 
-// polly 
-// ILogger örneðini doðrudan servisten almak için bir Factory metod kullanýn.
-builder.Services.AddHttpClient("MyClient", client =>
-{
-    // HttpClient yapýlandýrmasý
-}).AddPolicyHandler((provider, request) =>
-{
-    // ILogger örneðini servis saðlayýcý üzerinden alýn
-    var logger = provider.GetRequiredService<ILoggerFactory>().CreateLogger("HttpClientPollyLogs");
-
-    // Retry politikasý
-    var retryPolicy = HttpPolicyExtensions
-        .HandleTransientHttpError()
-        .OrResult(msg => !msg.IsSuccessStatusCode)
-        .RetryAsync(3, onRetry: (outcome, retryCount, context) =>
-        {
-            logger.LogWarning($"Yeniden deneme {retryCount} için HTTP isteði baþarýsýz. Hata: {outcome.Exception?.Message}");
-        });
-
-    // Circuit Breaker politikasý
-    var circuitBreakerPolicy = Policy
-        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-        .CircuitBreakerAsync(
-            handledEventsAllowedBeforeBreaking: 2,
-            durationOfBreak: TimeSpan.FromMinutes(1),
-            onBreak: (outcome, breakDelay, context) =>
-            {
-                logger.LogWarning($"Circuit Breaker devreye girdi: {breakDelay.TotalSeconds} saniye. Hata: {outcome.Exception?.Message}");
-            },
-            onReset: context =>
-            {
-                logger.LogInformation("Circuit Breaker sýfýrlandý.");
-            },
-            onHalfOpen: () =>
-            {
-                logger.LogInformation("Circuit Breaker yarý-açýk.");
-            });
-
-    return Policy.WrapAsync(retryPolicy, circuitBreakerPolicy);
-});
-
-
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -120,7 +78,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
- 
+
 //ocelot servise giderken header'a eklenecekler
 app.Use(async (context, next) =>
 {
@@ -135,21 +93,22 @@ app.Use(async (context, next) =>
         var userName = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "unique_name")?.Value;
 
         if (!string.IsNullOrEmpty(userId))
-        {
             context.Request.Headers.Add("X-User-Id", userId);
-        }
+
 
         if (!string.IsNullOrEmpty(userName))
-        {
             context.Request.Headers.Add("X-User-Name", userName);
-        }
+
+
+        context.Request.Headers.Add("X-Ocelot-Secret", "fromOcelot");
+
     }
 
     await next.Invoke();
 });
 
 await app.UseOcelot();
- 
+
 app.UseAuthentication();
 app.UseAuthorization();
 
