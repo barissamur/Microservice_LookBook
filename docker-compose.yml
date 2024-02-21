@@ -29,7 +29,7 @@ services:
     image: postgres:latest
     container_name: c_postgres
     environment:
-      POSTGRES_USER: sa_admin
+      POSTGRES_USER: sa_admin123
       POSTGRES_PASSWORD: Asdqwe123.
       POSTGRES_DB: orderdb
     ports:

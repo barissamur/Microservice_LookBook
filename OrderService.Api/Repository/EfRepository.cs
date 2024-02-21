@@ -1,14 +1,13 @@
 ﻿using Ardalis.Specification;
 using Ardalis.Specification.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore;
+using OrderService.Api.Data;
+using OrderService.Api.IRepo;
 
 namespace OrderService.Api.Repository;
-public class EfRepository<T> : RepositoryBase<T> where T : class
+public class EfRepository<T> : RepositoryBase<T>, IReadRepositoryBase<T>, IRepository<T> where T : class
 {
-    protected readonly DbContext _dbContext;
-
-    public EfRepository(DbContext dbContext, ISpecificationEvaluator specificationEvaluator) : base(dbContext, specificationEvaluator)
+    public EfRepository(OrderContext dbContext) : base(dbContext)
     {
-        _dbContext = dbContext;
+
     }
 }

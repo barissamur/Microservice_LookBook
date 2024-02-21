@@ -12,8 +12,8 @@ using OrderService.Api.Data;
 namespace OrderService.Api.Migrations
 {
     [DbContext(typeof(OrderContext))]
-    [Migration("20240221142516_for-other-models")]
-    partial class forothermodels
+    [Migration("20240221175134_ilk")]
+    partial class ilk
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
