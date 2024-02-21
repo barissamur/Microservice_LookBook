@@ -27,18 +27,18 @@ public class BooksController : ControllerBase
     [HttpGet("{id:length(24)}", Name = "GetBook")]
     public async Task<ActionResult<Book>> GetById(string id)
     {
-        _logger.LogInformation("Veri çekme isteği. Kullanıcı id: {Identity}", User.Claims.FirstOrDefault().Value);
+        _logger.LogInformation("Veri çekme isteği. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
 
         var book = await _bookRepository.GetByIdAsync(id);
 
         if (book == null)
         {
-            _logger.LogWarning("Veri bulunamadı. Kullanıcı id: {Identity}", User.Claims.FirstOrDefault().Value);
+            _logger.LogWarning("Veri bulunamadı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
 
             return NotFound();
         }
 
-        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {Identity}", User.Claims.FirstOrDefault().Value);
+        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
         return book;
     }
 

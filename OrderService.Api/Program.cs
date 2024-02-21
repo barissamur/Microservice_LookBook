@@ -1,10 +1,14 @@
 using BookService.Api.Extensions;
-using BookService.Api.Repository;
-using MongoDB.Driver;
+using Microsoft.EntityFrameworkCore;
 using OcelotApiGateway.Api.Middleware;
+using OrderService.Api.Data;
+using OrderService.Api.IRepo;
+using OrderService.Api.Repository;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Add services to the container.
 
 // Serilog configuration
 builder.Host.UseSerilog((ctx, lc) => lc
@@ -14,31 +18,17 @@ builder.Host.UseSerilog((ctx, lc) => lc
 //ocelot consul register ayarlarý
 builder.Services.ConfigureConsul(builder.Configuration);
 
-// MongoDB baðlantý dizesini appsettings.json dosyasýndan al
-var mongoConnectionString = builder.Configuration.GetConnectionString("BookStoreDatabase");
-
-// MongoDB istemcisini kaydet
-builder.Services.AddSingleton<IMongoClient>(s =>
-{
-    return new MongoClient(mongoConnectionString);
-});
-
-// Uygulama için MongoDB veritabanýný kaydet
-builder.Services.AddSingleton<IMongoDatabase>(s =>
-{
-    var client = s.GetRequiredService<IMongoClient>();
-    return client.GetDatabase("bookstore"); // Veritabaný adýnýz
-});
-
-//mongodb servisi
-builder.Services.AddSingleton<BookRepository>();
-
-// Add services to the container.
+// postgresql context
+builder.Services.AddDbContext<OrderContext>(options =>
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// repoyu ekliyoruz 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
 
 var app = builder.Build();
 
@@ -54,7 +44,7 @@ if (app.Environment.IsDevelopment())
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
 // Consul ile kayýt iþlemi
-app.RegisterWithConsul(lifetime, builder.Configuration); 
+app.RegisterWithConsul(lifetime, builder.Configuration);
 app.UseMiddleware<CustomHeaderMiddleware>();
 
 app.UseHttpsRedirection();
