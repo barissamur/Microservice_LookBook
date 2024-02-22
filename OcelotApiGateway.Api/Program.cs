@@ -5,12 +5,17 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using Ocelot.Provider.Polly;
-using Polly;
-using Polly.Extensions.Http;
 using Serilog;
 using Serilog.Events;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
+
+using HotChocolate.AspNetCore;
+using HotChocolate.AspNetCore.Playground;
+using OcelotApiGateway.Api.GraphQL.Queries;
+using OcelotApiGateway.Api.GraphQL.Types;
+using OcelotApiGateway.Api.GraphQL.Services;
+using Ocelot.Values;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +24,20 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+//builder.Services.AddSwaggerGen();
+
+
+// GraphQL Server ve tiplerini ekleyin
+builder.Services
+    .AddGraphQLServer()
+    .AddQueryType<Query>()
+    .AddType<BookType>();
+
+// HttpClient yapýlandýrmasý
+builder.Services.AddHttpClient("BookSer", c =>
+{
+    c.BaseAddress = new Uri("https://localhost:5010/api/");
+});
 
 
 // Serilog yapýlandýrmasý
@@ -67,17 +85,23 @@ builder.Services.AddAuthentication(options =>
 });
 
 
-
 var app = builder.Build();
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    app.UsePlayground(new PlaygroundOptions
+    {
+        QueryPath = "/graphql",
+        Path = "/playground"
+    });
+    //app.UseSwagger();
+    //app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
+
 
 //ocelot servise giderken header'a eklenecekler
 app.Use(async (context, next) =>
@@ -109,9 +133,13 @@ app.Use(async (context, next) =>
 
 await app.UseOcelot();
 
+
 app.UseAuthentication();
 app.UseAuthorization();
 
+
+// GraphQL endpoint'i ve Playground'u yapýlandýrýn
+app.MapGraphQL();
 
 app.MapControllers();
 
