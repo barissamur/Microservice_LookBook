@@ -9,10 +9,20 @@
 
 	<ItemGroup>
 		<PackageReference Include="Consul" Version="1.7.14.3" />
-		<PackageReference Include="MongoDB.Driver" Version="2.23.1" />
+		<PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
+		<PackageReference Include="HotChocolate.AspNetCore.Playground" Version="10.5.5" />
+		<PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.2" />
+		<PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.1" />
+		<PackageReference Include="MongoDB.Driver" Version="2.24.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
-		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Areas\GraphQL\Controllers\" />
+	  <Folder Include="Areas\GraphQL\Extensions\" />
+	  <Folder Include="Areas\GraphQL\Models\" />
 	</ItemGroup>
 
 </Project>
