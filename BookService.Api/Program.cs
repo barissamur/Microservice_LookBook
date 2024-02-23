@@ -3,18 +3,19 @@ using BookService.Api.Extensions;
 using BookService.Api.Repository;
 using HotChocolate.AspNetCore;
 using HotChocolate.AspNetCore.Playground;
+using MongoDB.Bson;
 using MongoDB.Driver;
+using MongoDB.Driver.Core.Events;
 using OcelotApiGateway.Api.Middleware;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
+//ocelot consul register ayarlarý
+builder.Services.ConfigureConsul(builder.Configuration);
 
-// graphql
-builder.Services
-      .AddGraphQLServer()
-      .AddQueryType<Query>(); // Query sýnýfýnýz GraphQL sorgularýný tanýmlar
+
 
 
 // Serilog configuration
@@ -23,18 +24,24 @@ builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.File("logs/log-.log", rollingInterval: RollingInterval.Day));
 
 
-//ocelot consul register ayarlarý
-builder.Services.ConfigureConsul(builder.Configuration);
-
-
 // MongoDB baðlantý dizesini appsettings.json dosyasýndan al
 var mongoConnectionString = builder.Configuration.GetConnectionString("BookStoreDatabase");
 
 
-// MongoDB istemcisini kaydet
+// MongoDB istemcisini kaydet ve loglama için yapýlandýr
 builder.Services.AddSingleton<IMongoClient>(s =>
 {
-    return new MongoClient(mongoConnectionString);
+    var mongoClientSettings = MongoClientSettings.FromConnectionString(mongoConnectionString);
+
+    mongoClientSettings.ClusterConfigurator = cb =>
+    {
+        cb.Subscribe<CommandStartedEvent>(e =>
+        {
+            Log.Information("MongoDB Command Started: {CommandName} - {Command}", e.CommandName, e.Command.ToJson());
+        });
+    };
+
+    return new MongoClient(mongoClientSettings);
 });
 
 
@@ -49,6 +56,11 @@ builder.Services.AddSingleton<IMongoDatabase>(s =>
 //mongodb servisi
 builder.Services.AddSingleton<BookRepository>();
 
+
+// graphql
+builder.Services
+      .AddGraphQLServer()
+      .AddQueryType<Query>();
 
 // Add services to the container.
 
@@ -86,11 +98,11 @@ app.UseMiddleware<CustomHeaderMiddleware>();
 
 app.UseHttpsRedirection();
 
-// graphql
 app.UseRouting();
 
 app.UseAuthorization();
- 
+
+// graphql
 app.UseEndpoints(endpoints =>
 {
     endpoints.MapGraphQL(); // /graphql endpoint'ini oluþturur
