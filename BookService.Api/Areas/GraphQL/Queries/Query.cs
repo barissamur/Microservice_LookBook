@@ -13,6 +13,7 @@ public class Query
         _context = context;
     }
 
+    [UseProjection]
     public async Task<List<Book>> GetBooks() => await _context.GetAllAsync();
 
 

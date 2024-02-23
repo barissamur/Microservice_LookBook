@@ -60,7 +60,8 @@ builder.Services.AddSingleton<BookRepository>();
 // graphql
 builder.Services
       .AddGraphQLServer()
-      .AddQueryType<Query>();
+      .AddQueryType<Query>()
+      .AddProjections();
 
 // Add services to the container.
 

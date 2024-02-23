@@ -25,13 +25,13 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
-
+ 
 
 // GraphQL Server ve tiplerini ekleyin
 builder.Services
     .AddGraphQLServer()
-    .AddQueryType<Query>()
-    .AddType<BookType>();
+    .AddQueryType<Query>();
+
 
 // HttpClient yapýlandýrmasý
 builder.Services.AddHttpClient("BookSer", c =>
@@ -84,6 +84,7 @@ builder.Services.AddAuthentication(options =>
     options.SaveToken = true;
 });
 
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -96,8 +97,8 @@ if (app.Environment.IsDevelopment())
         QueryPath = "/graphql",
         Path = "/playground"
     });
-    //app.UseSwagger();
-    //app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();
