@@ -1,4 +1,13 @@
 {
+  "Aggregates": [
+    {
+      "RouteKeys": [
+        "OrderItems"
+      ],
+      "UpstreamPathTemplate": "/",
+      "Aggregator": "OrderItemsAggregator"
+    }
+  ],
   "Routes": [
     {
       "ServiceName": "IdentityService",
@@ -52,6 +61,7 @@
 
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "https",
+      "RequestIdKey": "OrderItems",
 
       "UpstreamPathTemplate": "/v1/Order/{everything}",
       "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
