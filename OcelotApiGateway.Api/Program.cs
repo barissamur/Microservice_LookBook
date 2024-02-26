@@ -8,12 +8,21 @@ using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Ocelot.Provider.Consul;
 using Ocelot.Provider.Polly;
+using OcelotApiGateway.Api.Middleware;
 using Serilog;
 using Serilog.Events;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// aggregator için gerekli adresler
+builder.Services.AddHttpClient("BookServiceGraphQLClient", c =>
+{
+    c.BaseAddress = new Uri("https://localhost:5000/v1/Book/graphql");
+    // Burada istemci için diðer yapýlandýrmalarý ekleyebilirsiniz
+});
+
 
 // Add services to the container.
 
@@ -120,6 +129,8 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.UseRouting();
+
+app.UseMiddleware<TokenMiddleware>();
 
 await app.UseOcelot();
 

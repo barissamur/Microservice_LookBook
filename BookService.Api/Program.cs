@@ -72,14 +72,14 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-
+ 
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UsePlayground(new PlaygroundOptions
     {
-        QueryPath = "/graphql",
+        QueryPath = "/api/graphql",
         Path = "/playground"
     });
 
@@ -106,7 +106,7 @@ app.UseAuthorization();
 // graphql
 app.UseEndpoints(endpoints =>
 {
-    endpoints.MapGraphQL(); // /graphql endpoint'ini oluþturur
+    app.MapGraphQL("/api/graphql");
 });
 
 
