@@ -26,27 +26,21 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
         if (!string.IsNullOrEmpty(token))
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
 
-
-        var request = new HttpRequestMessage(HttpMethod.Post, "https://localhost:5000/v1/Book/graphql");
-
-        // GraphQL sorgunuz
+         
+        // GraphQL sorgusu JSON formatında hazırlanır
         string graphqlQuery = @"
         {
-            ""query"": ""{ 
-                booksByIds (ids: [\""65d48c5bb7580d61bec6e3fd\"", \""65d5dbee542de6db8f1f91b4\""]) { 
-                    id 
-                    title 
-                    author 
-                    year 
-                    price 
-                } 
-            }""
+            ""query"": ""{ booksByIds(ids: [\""65d383357e097752097694bc\"", \""65dcbf748d7f32dca48ed82c\""]) { id title author year price } }""
         }";
 
+        // StringContent nesnesi oluşturulurken, GraphQL sorgusu JSON string olarak verilir
         var content = new StringContent(graphqlQuery, Encoding.UTF8, "application/json");
+
+        // HttpClient ile POST isteği yapılır
         var response = await client.PostAsync("", content);
 
-        request.Content = new StringContent(JsonConvert.SerializeObject(graphqlQuery), Encoding.UTF8, "application/json");
+        // Yanıtın içeriği okunur
+        var responseContent = await response.Content.ReadAsStringAsync();
 
         var headers = new List<Header>();
 

@@ -45,7 +45,7 @@
 
 
       "UpstreamPathTemplate": "/v1/Book/{everything}",
-      "UpstreamHttpMethod": [ "Get", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
 
       "Key": "Books",
 

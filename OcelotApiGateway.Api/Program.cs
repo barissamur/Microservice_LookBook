@@ -19,7 +19,7 @@ var builder = WebApplication.CreateBuilder(args);
 // aggregator için gerekli adresler
 builder.Services.AddHttpClient("BookServiceGraphQLClient", c =>
 {
-    c.BaseAddress = new Uri("https://localhost:5000/v1/Book/graphql");
+    c.BaseAddress = new Uri("https://localhost:5010/api/graphql");
     // Burada istemci için diðer yapýlandýrmalarý ekleyebilirsiniz
 });
 
