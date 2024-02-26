@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace OcelotApiGateway.Api.Middleware;
 

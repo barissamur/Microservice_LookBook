@@ -14,10 +14,7 @@ var builder = WebApplication.CreateBuilder(args);
 
 //ocelot consul register ayarlarý
 builder.Services.ConfigureConsul(builder.Configuration);
-
-
-
-
+ 
 // Serilog configuration
 builder.Host.UseSerilog((ctx, lc) => lc
     .WriteTo.Console()
@@ -93,6 +90,7 @@ if (app.Environment.IsDevelopment())
 // Uygulama ömrünü yönetmek için IHostApplicationLifetime alýn
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
 
+
 // Consul ile kayýt iþlemi
 app.RegisterWithConsul(lifetime, builder.Configuration);
 app.UseMiddleware<CustomHeaderMiddleware>();
@@ -102,6 +100,7 @@ app.UseHttpsRedirection();
 app.UseRouting();
 
 app.UseAuthorization();
+
 
 // graphql
 app.UseEndpoints(endpoints =>
