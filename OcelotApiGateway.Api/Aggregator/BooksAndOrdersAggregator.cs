@@ -10,34 +10,45 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 {
     public async Task<DownstreamResponse> Aggregate(List<HttpContext> responses)
     {
-        var booksResponse = await responses[0].Items.DownstreamResponse().Content.ReadAsStringAsync();
-        var ordersResponse = await responses[1].Items.DownstreamResponse().Content.ReadAsStringAsync();
+        var placeholderValues = responses[0].Items.TemplatePlaceholderNameAndValues();
 
-        // Yanıtları JSON olarak parse etmek.
-        var booksData = JsonConvert.DeserializeObject(booksResponse);
-        var ordersData = JsonConvert.DeserializeObject(ordersResponse);
+        var orderIdValue = placeholderValues.FirstOrDefault(p => p.Name == "{orderId}")?.Value;
 
-        // İki servisten gelen verileri birleştir.
-        var combinedResult = new
+
+        var bookServiceHttpClient = new HttpClient
         {
-            Books = booksData,
-            Orders = ordersData
+            BaseAddress = new Uri("https://localhost:5010/graphql") // Book servisinin adresi
         };
 
-        // Birleştirilmiş veriyi JSON string'e çevir.
-        var combinedJson = JsonConvert.SerializeObject(combinedResult);
-        var contentBytes = Encoding.UTF8.GetBytes(combinedJson);
 
-        // Birleştirilmiş veriyi bir MemoryStream'e yaz.
-        var streamContent = new MemoryStream(contentBytes);
-        var httpContent = new StreamContent(streamContent);
+        // Order servisine yönelik GraphQL sorgusu
+        var bookQuery = @$" 
+            {{
+              booksByIds(ids: [""65d48c5bb7580d61bec6e3fd"", ""65d5dbee542de6db8f1f91b4""]) {{ 
+                id
+                title
+                author
+                year
+                price
+              }}
+            }}";
 
-        // Gerekli başlıkları ayarla.
-        var headers = new List<Header> { new Header("Content-Type", new[] { "application/json" }) };
+        var bookResponseContent = new StringContent(JsonConvert.SerializeObject(new { query = bookQuery }), Encoding.UTF8, "application/json");
+        var bookResponse = await bookServiceHttpClient.PostAsync("", bookResponseContent);
+        var bookData = await bookResponse.Content.ReadAsStringAsync();
 
-        // DownstreamResponse nesnesini oluştur.
-        var downstreamResponse = new DownstreamResponse(httpContent, HttpStatusCode.OK, headers, "OK");
 
-        return downstreamResponse;
+        var orderResponse = await responses[0].Items.DownstreamResponse().Content.ReadAsStringAsync();
+        //var bookResponse = await responses[1].Items.DownstreamResponse().Content.ReadAsStringAsync();
+
+        // Verileri birleştirme işlemleri burada yapılır
+        var combinedResult = $"{{\"order\": {orderResponse}, \"books\": {bookResponse}}}";
+
+        var stringContent = new StringContent(combinedResult, System.Text.Encoding.UTF8, "application/json");
+
+        var headers = new List<Header>();
+        // Gerekli header'ları ekleyin
+
+        return new DownstreamResponse(stringContent, HttpStatusCode.OK, headers, "OK");
     }
 }
