@@ -1,8 +1,6 @@
-﻿using Newtonsoft.Json;
+﻿namespace OrderService.Api.Models;
 
-namespace OrderService.Api.Models;
-
-public class OrderItem
+public class OrderItemDto
 {
     public int OrderItemId { get; set; }
     public int OrderId { get; set; } // Siparişe referans
@@ -11,7 +9,6 @@ public class OrderItem
     public decimal UnitPrice { get; set; } // Ürünün birim fiyatı, Ürün servisinden gelir
 
     // Navigation property
-    [JsonIgnore]
-    public Order Order { get; set; }
+    public OrderDto Order { get; set; }
 }
 

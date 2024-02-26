@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using OrderService.Api.Data;
@@ -11,9 +12,11 @@ using OrderService.Api.Data;
 namespace OrderService.Api.Migrations
 {
     [DbContext(typeof(OrderContext))]
-    partial class OrderContextModelSnapshot : ModelSnapshot
+    [Migration("20240226072548_for-other")]
+    partial class forother
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,24 +34,29 @@ namespace OrderService.Api.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("OrderId"));
 
                     b.Property<string>("CustomerId")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("OrderDate")
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("OrderStatus")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<decimal>("OrderTotal")
                         .HasColumnType("numeric");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("ShippingAddress")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TrackingCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("OrderId");
@@ -101,9 +109,11 @@ namespace OrderService.Api.Migrations
                         .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("PaymentMethod")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("PaymentDetailId");
@@ -128,9 +138,11 @@ namespace OrderService.Api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("PaymentGateway")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<DateTime>("Timestamp")
@@ -153,12 +165,15 @@ namespace OrderService.Api.Migrations
                         .HasColumnType("integer");
 
                     b.Property<string>("ShippingAddress")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("Status")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<string>("TrackingCode")
+                        .IsRequired()
                         .HasColumnType("text");
 
                     b.HasKey("ShippingDetailId");

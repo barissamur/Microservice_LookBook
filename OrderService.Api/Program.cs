@@ -5,10 +5,17 @@ using OrderService.Api.Data;
 using OrderService.Api.IRepo;
 using OrderService.Api.Repository;
 using Serilog;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddHttpContextAccessor();
+
+builder.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 
 // Serilog configuration
 builder.Host.UseSerilog((ctx, lc) => lc

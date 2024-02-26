@@ -2,12 +2,14 @@
   "Aggregates": [
     {
       "RouteKeys": [
-        "OrderItems"
+        "Orders",
+        "Books"
       ],
-      "UpstreamPathTemplate": "/",
-      "Aggregator": "OrderItemsAggregator"
+      "UpstreamPathTemplate": "/v1/OrderWithBooks/{everything}",
+      "Aggregator": "BooksAndOrdersAggregator"
     }
   ],
+
   "Routes": [
     {
       "ServiceName": "IdentityService",
@@ -40,7 +42,9 @@
       "DownstreamScheme": "https",
 
       "UpstreamPathTemplate": "/v1/Book/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "UpstreamHttpMethod": [ "Get" ],
+
+      "Key": "Books",
 
       // jwt işlemleri
       "AuthenticationOptions": {
@@ -61,10 +65,11 @@
 
       "DownstreamPathTemplate": "/api/{everything}",
       "DownstreamScheme": "https",
-      "RequestIdKey": "OrderItems",
-
+ 
       "UpstreamPathTemplate": "/v1/Order/{everything}",
-      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+      "UpstreamHttpMethod": [ "Get" ],
+
+      "Key": "Orders",
 
       // jwt işlemleri
       "AuthenticationOptions": {

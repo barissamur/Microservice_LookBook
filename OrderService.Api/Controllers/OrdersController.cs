@@ -13,6 +13,7 @@ namespace OrderService.Api.Controllers;
 public class OrdersController : ControllerBase
 {
     private readonly IRepository<Order> _orderRepository;
+    private readonly IRepository<OrderItem> _orderItemRepository;
 
     public OrdersController(IRepository<Order> orderRepository)
     {
@@ -25,14 +26,29 @@ public class OrdersController : ControllerBase
     public async Task<ActionResult<Order>> PostOrder(Order order)
     {
         await _orderRepository.AddAsync(order);
+        await _orderItemRepository.AddRangeAsync(order.OrderItems);
         return CreatedAtAction("GetOrder", new { id = order.OrderId }, order);
     }
 
 
+    //[HttpGet("{id}")]
+    //public async Task<ActionResult<Order>> GetOrder(int id)
+    //{
+    //    var order = await _orderRepository.GetByIdAsync(id);
+
+    //    if (order == null)
+    //    {
+    //        return NotFound();
+    //    }
+
+    //    return order;
+    //}
+
     [HttpGet("{id}")]
-    public async Task<ActionResult<Order>> GetOrder(int id)
+    public async Task<ActionResult<Order>> GetOrderWithItems(int id)
     {
-        var order = await _orderRepository.GetByIdAsync(id);
+        var spec = new OrderWithItemsSpecification(id);
+        var order = await _orderRepository.GetBySpecAsync(spec);
 
         if (order == null)
         {

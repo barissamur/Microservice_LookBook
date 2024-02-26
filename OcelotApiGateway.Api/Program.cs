@@ -1,4 +1,7 @@
 
+using BookService.Api.Aggregator;
+using HotChocolate.AspNetCore;
+using HotChocolate.AspNetCore.Playground;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
@@ -10,13 +13,6 @@ using Serilog.Events;
 using System.IdentityModel.Tokens.Jwt;
 using System.Text;
 
-using HotChocolate.AspNetCore;
-using HotChocolate.AspNetCore.Playground;
-using OcelotApiGateway.Api.GraphQL.Queries;
-using OcelotApiGateway.Api.GraphQL.Types;
-using OcelotApiGateway.Api.GraphQL.Services;
-using Ocelot.Values;
-
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,19 +21,6 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
- 
-
-// GraphQL Server ve tiplerini ekleyin
-builder.Services
-    .AddGraphQLServer()
-    .AddQueryType<Query>();
-
-
-// HttpClient yapýlandýrmasý
-builder.Services.AddHttpClient("BookSer", c =>
-{
-    c.BaseAddress = new Uri("https://localhost:5010/api/");
-});
 
 
 // Serilog yapýlandýrmasý
@@ -54,7 +37,11 @@ builder.Host.UseSerilog(); // Host'u Serilog ile kullan
 //ocelot  
 // Ocelot yapýlandýrmasýný ekleyin
 builder.Configuration.AddJsonFile("Configurations/ocelot.json");
-builder.Services.AddOcelot(builder.Configuration).AddConsul().AddPolly();
+
+builder.Services.AddOcelot(builder.Configuration)
+    .AddSingletonDefinedAggregator<BooksAndOrdersAggregator>()
+    .AddConsul()
+    .AddPolly();
 
 
 // Ocelot JWT Authentication configuration
@@ -92,11 +79,6 @@ var app = builder.Build();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.UsePlayground(new PlaygroundOptions
-    {
-        QueryPath = "/graphql",
-        Path = "/playground"
-    });
     app.UseSwagger();
     app.UseSwaggerUI();
 }
@@ -132,15 +114,14 @@ app.Use(async (context, next) =>
     await next.Invoke();
 });
 
-await app.UseOcelot();
 
 
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseRouting();
 
-// GraphQL endpoint'i ve Playground'u yapýlandýrýn
-app.MapGraphQL();
+await app.UseOcelot();
 
 app.MapControllers();
 

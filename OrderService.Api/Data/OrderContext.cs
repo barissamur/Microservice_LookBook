@@ -10,5 +10,8 @@ public class OrderContext : DbContext
     }
 
     public DbSet<Order> Orders { get; set; }
-    // Diğer DbSet'ler...
-}
+    public DbSet<OrderItem> OrderItems { get; set; }
+    public DbSet<PaymentDetail> PaymentDetails { get; set; }
+    public DbSet<PaymentTransaction> PaymentTransactions { get; set; }
+    public DbSet<ShippingDetail> ShippingDetails { get; set; }
+  }
