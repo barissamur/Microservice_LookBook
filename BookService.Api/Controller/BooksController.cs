@@ -38,7 +38,7 @@ public class BooksController : ControllerBase
             return NotFound();
         }
 
-        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
+        _logger.LogInformation("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
         return book;
     }
 
@@ -50,7 +50,7 @@ public class BooksController : ControllerBase
 
         var books = await _bookRepository.GetAllAsync();
 
-        _logger.LogWarning("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
+        _logger.LogInformation("Veri çekme işlemi başarılı. Kullanıcı id: {UserId}. Adı: {UserName}", UserId, UserName);
         return Ok(books);
     }
 

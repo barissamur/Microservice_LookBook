@@ -8,6 +8,21 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Areas\GraphQL\Controllers\**" />
+	  <Compile Remove="Areas\GraphQL\Extensions\**" />
+	  <Compile Remove="Areas\GraphQL\Models\**" />
+	  <Content Remove="Areas\GraphQL\Controllers\**" />
+	  <Content Remove="Areas\GraphQL\Extensions\**" />
+	  <Content Remove="Areas\GraphQL\Models\**" />
+	  <EmbeddedResource Remove="Areas\GraphQL\Controllers\**" />
+	  <EmbeddedResource Remove="Areas\GraphQL\Extensions\**" />
+	  <EmbeddedResource Remove="Areas\GraphQL\Models\**" />
+	  <None Remove="Areas\GraphQL\Controllers\**" />
+	  <None Remove="Areas\GraphQL\Extensions\**" />
+	  <None Remove="Areas\GraphQL\Models\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Consul" Version="1.7.14.3" />
 		<PackageReference Include="HotChocolate.AspNetCore" Version="13.9.0" />
 		<PackageReference Include="HotChocolate.AspNetCore.Playground" Version="10.5.5" />
@@ -18,12 +33,6 @@
 		<PackageReference Include="Serilog.AspNetCore" Version="8.0.1" />
 		<PackageReference Include="Serilog.Sinks.File" Version="5.0.0" />
 		<PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Areas\GraphQL\Controllers\" />
-	  <Folder Include="Areas\GraphQL\Extensions\" />
-	  <Folder Include="Areas\GraphQL\Models\" />
 	</ItemGroup>
 
 </Project>

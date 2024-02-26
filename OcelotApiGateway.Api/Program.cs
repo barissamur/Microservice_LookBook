@@ -1,7 +1,5 @@
 
 using BookService.Api.Aggregator;
-using HotChocolate.AspNetCore;
-using HotChocolate.AspNetCore.Playground;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
@@ -19,9 +17,15 @@ var builder = WebApplication.CreateBuilder(args);
 // aggregator için gerekli adresler
 builder.Services.AddHttpClient("BookServiceGraphQLClient", c =>
 {
-    c.BaseAddress = new Uri("https://localhost:5010/api/graphql");
-    // Burada istemci için diðer yapýlandýrmalarý ekleyebilirsiniz
+    c.BaseAddress = new Uri("https://localhost:5000/v1/Book/graphql");
 });
+
+builder.Services.AddHttpClient("OrderServiceGraphQLClient", c =>
+{
+    c.BaseAddress = new Uri("https://localhost:5000/v1/Order/graphql/");
+ });
+
+
 
 
 // Add services to the container.

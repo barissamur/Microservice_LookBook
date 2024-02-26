@@ -20,13 +20,17 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
     public async Task<DownstreamResponse> Aggregate(List<HttpContext> responses)
     {
+        var placeholderValues = responses[0].Items.TemplatePlaceholderNameAndValues();
+
+        var orderIdValue = placeholderValues.FirstOrDefault(p => p.Name == "{orderId}")?.Value;
+
         var client = _clientFactory.CreateClient("BookServiceGraphQLClient");
         var token = responses.FirstOrDefault()?.Request.Headers["Authorization"].GetValue();
 
         if (!string.IsNullOrEmpty(token))
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
 
-         
+
         // GraphQL sorgusu JSON formatında hazırlanır
         string graphqlQuery = @"
         {
