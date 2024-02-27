@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Ocelot.Infrastructure.Extensions;
 using Ocelot.Middleware;
 using Ocelot.Multiplexer;
@@ -21,15 +22,15 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
     public async Task<DownstreamResponse> Aggregate(List<HttpContext> responses)
     {
         var token = responses.FirstOrDefault()?.Request.Headers["Authorization"].GetValue();
+        var baseServiceClient = _clientFactory.CreateClient("BaseAdres");
 
         var placeholderValues = responses[0].Items.TemplatePlaceholderNameAndValues();
         var orderIdValue = placeholderValues.FirstOrDefault(p => p.Name == "{orderId}")?.Value;
         int orderId = Convert.ToInt32(orderIdValue);
 
-        var orderServiceClient = _clientFactory.CreateClient("OrderServiceGraphQLClient");
 
         if (!string.IsNullOrEmpty(token))
-            orderServiceClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
+            baseServiceClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
 
         // graphql Sorgusu tek satırda olacak
         var getOrderWithItemsGraphqlQuery = @"
@@ -39,32 +40,40 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
         var orderContent = new StringContent(getOrderWithItemsGraphqlQuery, Encoding.UTF8, "application/json");
 
-        var orderResponse = await orderServiceClient.PostAsync("Order/graphql", orderContent);
+        var orderResponse = await baseServiceClient.PostAsync("Order/graphql", orderContent);
 
         var orderResponseContent = await orderResponse.Content.ReadAsStringAsync();
 
+          
+        var jObject = JObject.Parse(orderResponseContent);
 
-
-        // burada order içeriğinden product id'leri çekecez
-
-
-
-
-        // bookId'lere göre book servise istek atacaz
-        var bookServiceClient = _clientFactory.CreateClient("BookServiceGraphQLClient");
-
-        if (!string.IsNullOrEmpty(token))
-            bookServiceClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
+        // `productId` değerlerini alın
+        var productIds = jObject["data"]["orderWithItems"]["orderItems"]
+                            .Select(item => (string)item["productId"])
+                            .ToArray();
          
-        // GraphQL sorgusu JSON formatında hazırlanır
-        string getBooksGraphqlQuery = @"
+        var getBooksGraphqlQuery = @"
+            query booksByIds($ids: [String!]!) { 
+                booksByIds(ids: $ids) { 
+                    id 
+                    title 
+                    author 
+                    year 
+                    price 
+                } 
+            }
+        ";
+         
+        var requestBody = new
         {
-            ""query"": ""query { booksByIds(ids: [" + 1 + @"]) { id title author year price }}""
-        }";
+            query = getBooksGraphqlQuery,
+            variables = new { ids = productIds }
+        };
 
-        var bookContent = new StringContent(getBooksGraphqlQuery, Encoding.UTF8, "application/json");
 
-        var bookResponse = await bookServiceClient.PostAsync("Book/graphql", bookContent);
+        var bookContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
+         
+        var bookResponse = await baseServiceClient.PostAsync("Book/graphql", bookContent);
 
         var bookResponseContent = await bookResponse.Content.ReadAsStringAsync();
 

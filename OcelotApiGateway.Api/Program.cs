@@ -14,13 +14,8 @@ using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// aggregator için gerekli adresler
-builder.Services.AddHttpClient("BookServiceGraphQLClient", c =>
-{
-    c.BaseAddress = new Uri("https://localhost:5000/v1");
-});
-
-builder.Services.AddHttpClient("OrderServiceGraphQLClient", c =>
+// aggregator için gerekli adresler 
+builder.Services.AddHttpClient("BaseAdres", c =>
 {
     c.BaseAddress = new Uri("https://localhost:5000/v1/");
  });

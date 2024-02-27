@@ -1,0 +1,9 @@
+﻿query booksByIds($ids: [String!]) { 
+  booksByIds(ids: $ids) { 
+    id 
+    title 
+    author 
+    year 
+    price 
+  } 
+}
