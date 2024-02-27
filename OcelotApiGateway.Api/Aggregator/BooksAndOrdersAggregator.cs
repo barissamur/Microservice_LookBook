@@ -31,30 +31,13 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
         if (!string.IsNullOrEmpty(token))
             orderServiceClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
 
-        //// Sorgu metnini JSON string olarak düzenliyoruz
-        //string getOrderWithItemsQuery = @"
-        //{
-        //    ""query"": ""query {
-        //        orderWithItems(orderId: " + orderIdValue + @") {
-        //            orderId
-        //            customerId
-        //            orderDate
-        //            orderStatus
-        //            orderItems {
-        //                productId
-        //                quantity
-        //                unitPrice
-        //            }
-        //        }
-        //    }""
-        //}";
-
-        var getOrderWithItemsQuery = @"
+        // graphql Sorgusu tek satırda olacak
+        var getOrderWithItemsGraphqlQuery = @"
         {
             ""query"": ""query { orderWithItems(orderId: " + orderId + @") { orderId customerId orderDate orderStatus orderItems { productId quantity unitPrice } } }""
         }";
 
-        var orderContent = new StringContent(getOrderWithItemsQuery, Encoding.UTF8, "application/json");
+        var orderContent = new StringContent(getOrderWithItemsGraphqlQuery, Encoding.UTF8, "application/json");
 
         var orderResponse = await orderServiceClient.PostAsync("Order/graphql", orderContent);
 
@@ -62,40 +45,34 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
 
 
+        // burada order içeriğinden product id'leri çekecez
 
+
+
+
+        // bookId'lere göre book servise istek atacaz
         var bookServiceClient = _clientFactory.CreateClient("BookServiceGraphQLClient");
 
         if (!string.IsNullOrEmpty(token))
             bookServiceClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token.Split(' ')[1]);
-
-
+         
         // GraphQL sorgusu JSON formatında hazırlanır
-        string graphqlQuery = @"
+        string getBooksGraphqlQuery = @"
         {
-            ""query"": ""{ 
-                booksByIds(ids: [\""65d48c5bb7580d61bec6e3fd\"", \""65d5dbb8542de6db8f1f91af\""]) { 
-                    id 
-                    title 
-                    author 
-                    year 
-                    price 
-                } 
-              }""        }";
+            ""query"": ""query { booksByIds(ids: [" + 1 + @"]) { id title author year price }}""
+        }";
 
-        // StringContent nesnesi oluşturulurken, GraphQL sorgusu JSON string olarak verilir
-        var content = new StringContent(graphqlQuery, Encoding.UTF8, "application/json");
+        var bookContent = new StringContent(getBooksGraphqlQuery, Encoding.UTF8, "application/json");
 
-        // HttpClient ile POST isteği yapılır
-        var response = await bookServiceClient.PostAsync("/Book/graphql", content);
+        var bookResponse = await bookServiceClient.PostAsync("Book/graphql", bookContent);
 
-        // Yanıtın içeriği okunur
-        var responseContent = await response.Content.ReadAsStringAsync();
+        var bookResponseContent = await bookResponse.Content.ReadAsStringAsync();
 
         var headers = new List<Header>();
 
-        if (response.IsSuccessStatusCode)
+        if (bookResponse.IsSuccessStatusCode)
         {
-            var responseString = await response.Content.ReadAsStringAsync();
+            var responseString = await bookResponse.Content.ReadAsStringAsync();
             headers.Add(new Header("Content-Type", new[] { "application/json" }));
 
 
