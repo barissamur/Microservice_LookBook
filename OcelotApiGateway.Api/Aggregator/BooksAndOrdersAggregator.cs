@@ -44,14 +44,14 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
         var orderResponseContent = await orderResponse.Content.ReadAsStringAsync();
 
-          
+
         var jObject = JObject.Parse(orderResponseContent);
 
         // `productId` değerlerini alın
         var productIds = jObject["data"]["orderWithItems"]["orderItems"]
                             .Select(item => (string)item["productId"])
                             .ToArray();
-         
+
         var getBooksGraphqlQuery = @"
             query booksByIds($ids: [String!]!) { 
                 booksByIds(ids: $ids) { 
@@ -63,7 +63,7 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
                 } 
             }
         ";
-         
+
         var requestBody = new
         {
             query = getBooksGraphqlQuery,
@@ -72,27 +72,31 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
 
         var bookContent = new StringContent(JsonConvert.SerializeObject(requestBody), Encoding.UTF8, "application/json");
-         
+
         var bookResponse = await baseServiceClient.PostAsync("Book/graphql", bookContent);
 
         var bookResponseContent = await bookResponse.Content.ReadAsStringAsync();
 
-        var headers = new List<Header>();
 
-        if (bookResponse.IsSuccessStatusCode)
+        var orderJObject = JObject.Parse(orderResponseContent);
+        var booksJObject = JObject.Parse(bookResponseContent);
+
+        // Kitap bilgilerini orderItems'a entegre et
+        foreach (var item in orderJObject["data"]["orderWithItems"]["orderItems"])
         {
-            var responseString = await bookResponse.Content.ReadAsStringAsync();
-            headers.Add(new Header("Content-Type", new[] { "application/json" }));
+            var productId = (string)item["productId"];
+            var book = booksJObject["data"]["booksByIds"].FirstOrDefault(b => (string)b["id"] == productId);
 
-
-            // Başarılı bir yanıt döndürülür
-            return new DownstreamResponse(new StringContent(responseString, Encoding.UTF8, "application/json"), System.Net.HttpStatusCode.OK, headers, "OK");
+            if (book != null)
+            {
+                // Kitap bilgisini orderItem'a ekle
+                item["bookDetails"] = book;
+            }
         }
 
-        else
-        {
-            // Hata durumunda uygun bir DownstreamResponse döndürülür
-            return new DownstreamResponse(null, System.Net.HttpStatusCode.BadRequest, headers, null);
-        }
+        var combinedContent = new StringContent(orderJObject.ToString(), Encoding.UTF8, "application/json");
+        var headers = new List<Header> { new Header("Content-Type", new[] { "application/json" }) };
+
+        return new DownstreamResponse(combinedContent, HttpStatusCode.OK, headers, "OK"); 
     }
 }
