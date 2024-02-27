@@ -51,19 +51,7 @@ public class BooksAndOrdersAggregator : IDefinedAggregator
 
         var getOrderWithItemsQuery = @"
         {
-            ""query"": ""query { 
-                orderWithItems(orderId: " + orderId + @") { 
-                    orderId 
-                    customerId 
-                    orderDate 
-                    orderStatus 
-                    orderItems { 
-                        productId 
-                        quantity 
-                        unitPrice 
-                    } 
-                } 
-            }""
+            ""query"": ""query { orderWithItems(orderId: " + orderId + @") { orderId customerId orderDate orderStatus orderItems { productId quantity unitPrice } } }""
         }";
 
         var orderContent = new StringContent(getOrderWithItemsQuery, Encoding.UTF8, "application/json");
