@@ -1,4 +1,4 @@
-version: '24.0'
+version: '3.8'
 
 services:
   mssql:
@@ -35,7 +35,7 @@ services:
     ports:
       - "5432:5432"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql/data
 
 
   consul:
@@ -56,6 +56,19 @@ services:
       - '8080:8080'
     volumes:
       - adminer_data:/adminer/data
+  
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: c_rabbitmq
+    environment:
+      - RABBITMQ_ERLANG_COOKIE=secretcookie
+    ports:
+      - "5673:5672"
+      - "15673:15672"
+    volumes:
+      - rabbit_data:/var/lib/rabbitmq
+    restart: always
 
 
 volumes: 
@@ -63,5 +76,5 @@ volumes:
   mongo_data:
   consul_data:
   adminer_data:  
-  postgres-data:
-  
+  postgres_data:
+  rabbit_data:  
