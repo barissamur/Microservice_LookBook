@@ -36,6 +36,10 @@ builder.Services.AddDbContext<OrderContext>(options =>
     options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 
+// repoyu ekliyoruz 
+builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
+
+
 // graphql
 builder.Services
       .AddGraphQLServer()
@@ -47,10 +51,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-// repoyu ekliyoruz 
-builder.Services.AddScoped(typeof(IRepository<>), typeof(EfRepository<>));
-
+ 
 var app = builder.Build();
 
 

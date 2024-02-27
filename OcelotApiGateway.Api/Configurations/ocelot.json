@@ -44,7 +44,7 @@
 
 
       "UpstreamPathTemplate": "/v1/Book/{everything}",
-      "UpstreamHttpMethod": [ "GET", "POST", "PUT", "DELETE" ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
 
       "Key": "Books",
 
@@ -70,7 +70,7 @@
       "DownstreamScheme": "https",
 
       "UpstreamPathTemplate": "/v1/Order/{everything}",
-      "UpstreamHttpMethod": [ "Get" ],
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
 
       "Key": "Orders",
 

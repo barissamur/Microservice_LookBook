@@ -83,8 +83,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
-
-
+ 
 
 // ocelot consul register
 // Uygulama ömrünü yönetmek için IHostApplicationLifetime alýn
@@ -107,8 +106,7 @@ app.UseEndpoints(endpoints =>
 {
     app.MapGraphQL("/api/graphql");
 });
-
-
+ 
 app.MapControllers();
 
 app.Run();
