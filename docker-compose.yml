@@ -37,6 +37,25 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: c_redis
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
+
+  redisinsight:
+    image: redislabs/redisinsight:latest
+    container_name: c_redisinsight
+    ports:
+      - "8001:8001"
+    volumes:
+      - redisinsight_data:/db
+    restart: always
+
 
   consul:
     image: consul:1.15.4
@@ -78,3 +97,5 @@ volumes:
   adminer_data:  
   postgres_data:
   rabbit_data:  
+  redis_data:
+  redisinsight_data:
