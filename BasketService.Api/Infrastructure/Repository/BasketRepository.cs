@@ -3,65 +3,82 @@ using BasketService.Api.Core.Domain.Models;
 using Newtonsoft.Json;
 using StackExchange.Redis;
 
-namespace BasketService.Api.Infrastructure.Repository
+namespace BasketService.Api.Infrastructure.Repository;
+
+public class RedisBasketRepository : IBasketRepository
 {
-    public class RedisBasketRepository : IBasketRepository
+    private readonly ILogger<RedisBasketRepository> _logger;
+    private readonly IConnectionMultiplexer _redis;
+    private readonly IDatabase _database;
+
+    public RedisBasketRepository(ILoggerFactory loggerFactory, IConnectionMultiplexer redis)
     {
-        private readonly ILogger<RedisBasketRepository> _logger;
-        private readonly ConnectionMultiplexer _redis;
-        private readonly IDatabase _database;
+        _logger = loggerFactory.CreateLogger<RedisBasketRepository>();
+        _redis = redis;
+        _database = redis.GetDatabase();
+    }
 
-        public RedisBasketRepository(ILoggerFactory loggerFactory, ConnectionMultiplexer redis)
+    public async Task<bool> DeleteBasketAsync(string id)
+    {
+        return await _database.KeyDeleteAsync(id);
+    }
+
+    public IEnumerable<string> GetUsers()
+    {
+        var server = GetServer();
+        var data = server.Keys();
+
+        return data?.Select(k => k.ToString());
+    }
+
+    public async Task<CustomerBasket> GetBasketAsync(string customerId)
+    {
+        var data = await _database.StringGetAsync(customerId);
+
+        if (data.IsNullOrEmpty)
         {
-            _logger = loggerFactory.CreateLogger<RedisBasketRepository>();
-            _redis = redis;
-            _database = redis.GetDatabase();
+            return null;
         }
 
-        public async Task<bool> DeleteBasketAsync(string id)
+        return JsonConvert.DeserializeObject<CustomerBasket>(data);
+    }
+
+    public async Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket)
+    {
+        var created = await _database.StringSetAsync(basket.BuyerId, JsonConvert.SerializeObject(basket));
+
+        if (!created)
         {
-            return await _database.KeyDeleteAsync(id);
+            _logger.LogInformation("Problem occur persisting the item.");
+            return null;
         }
 
-        public IEnumerable<string> GetUsers()
-        {
-            var server = GetServer();
-            var data = server.Keys();
+        _logger.LogInformation("Basket item persisted succesfully.");
 
-            return data?.Select(k => k.ToString());
+        return await GetBasketAsync(basket.BuyerId);
+    }
+
+    private IServer GetServer()
+    {
+        var endpoint = _redis.GetEndPoints();
+        return _redis.GetServer(endpoint.First());
+    }
+
+    public async Task<CustomerBasket> AddItemToBasketAsync(string customerId, BasketItem item)
+    {
+        // Müşterinin mevcut sepetini al
+        var basket = await GetBasketAsync(customerId);
+        if (basket == null)
+        {
+            basket = new CustomerBasket { BuyerId = customerId, Items = new List<BasketItem>() };
         }
 
-        public async Task<CustomerBasket> GetBasketAsync(string customerId)
-        {
-            var data = await _database.StringGetAsync(customerId);
+        // Yeni ürünü sepete ekle
+        basket.Items.Add(item);
 
-            if (data.IsNullOrEmpty)
-            {
-                return null;
-            }
+        // Sepeti güncelle
+        await UpdateBasketAsync(basket);
 
-            return JsonConvert.DeserializeObject<CustomerBasket>(data);
-        }
-
-        public async Task<CustomerBasket> UpdateBasketAsync(CustomerBasket basket)
-        {
-            var created = await _database.StringSetAsync(basket.BuyerId, JsonConvert.SerializeObject(basket));
-
-            if (!created)
-            {
-                _logger.LogInformation("Problem occur persisting the item.");
-                return null;
-            }
-
-            _logger.LogInformation("Basket item persisted succesfully.");
-
-            return await GetBasketAsync(basket.BuyerId);
-        }
-
-        private IServer GetServer()
-        {
-            var endpoint = _redis.GetEndPoints();
-            return _redis.GetServer(endpoint.First());
-        }
+        return basket;
     }
 }
