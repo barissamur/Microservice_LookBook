@@ -86,7 +86,34 @@
         "DurationOfBreak": 60000,
         "TimeoutValue": 5000
       }
+    },
+     
+    {
+      "ServiceName": "BasketService",
+      "UseServiceDiscovery": true,
+
+      "DownstreamPathTemplate": "/api/{everything}",
+      "DownstreamScheme": "https",
+
+      "UpstreamPathTemplate": "/v1/Basket/{everything}",
+      "UpstreamHttpMethod": [ "Get", "Post", "Put", "Delete" ],
+
+      "Key": "Baskets",
+
+      // jwt işlemleri
+      "AuthenticationOptions": {
+        "AuthenticationProviderKey": "Bearer",
+        "AllowedScopes": []
+      },
+
+      // polly işlemleri
+      "QoSOptions": {
+        "ExceptionsAllowedBeforeBreaking": 2,
+        "DurationOfBreak": 60000,
+        "TimeoutValue": 5000
+      }
     }
+
   ],
 
   "GlobalConfiguration": {

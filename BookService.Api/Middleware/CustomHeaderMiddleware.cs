@@ -1,5 +1,4 @@
 ﻿using System.Security.Claims;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace OcelotApiGateway.Api.Middleware;
 
@@ -16,7 +15,7 @@ public class CustomHeaderMiddleware
 
     public async Task Invoke(HttpContext context)
     {
-        // gelen istek ocelot'tan mı geliyor
+        // servislerin kendi dahil ocelot dışında tüm istekleri 403 döndür. gelen istek ocelot'tan mı geliyor
         //var request = context.Request;
 
         //var fromOcelot = context.Request.Headers["X-Ocelot-Secret"].FirstOrDefault();

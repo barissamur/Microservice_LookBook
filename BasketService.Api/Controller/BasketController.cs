@@ -1,5 +1,7 @@
 ﻿using BasketService.Api.Core.Application.Repository;
 using BasketService.Api.Core.Domain.Models;
+using BasketService.Api.Integrations.Messaging;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BasketService.Api.Controller;
@@ -10,10 +12,13 @@ namespace BasketService.Api.Controller;
 public class BasketController : ControllerBase
 {
     private readonly IBasketRepository _basketRepository;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public BasketController(IBasketRepository basketRepository)
+    public BasketController(IBasketRepository basketRepository
+        , IPublishEndpoint publishEndpoint)
     {
         _basketRepository = basketRepository;
+        _publishEndpoint = publishEndpoint;
     }
 
     // Müşteri sepetini getir
@@ -61,6 +66,15 @@ public class BasketController : ControllerBase
         var basket = await _basketRepository.AddItemToBasketAsync(customerId, item);
         if (basket == null)
             return NotFound("Basket not found or item could not be added");
+
+        var eventMessage = new ProductAddedToBasket
+        {
+            BasketId = basket.BuyerId,
+            ProductId = item.Id,
+            Quantity = item.Quantity
+        };
+
+        await _publishEndpoint.Publish(eventMessage);
 
         return Ok(basket);
     }

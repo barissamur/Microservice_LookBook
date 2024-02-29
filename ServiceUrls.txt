@@ -1,0 +1,10 @@
+
+ 
+ 
+
+Web.ApiGateway			-> http://localhost:5000
+ 
+IdentityServer.Api		-> http://localhost:5005
+BookService.Api		    -> http://localhost:5010
+OrderService.Api		-> http://localhost:5015
+BasketService.Api		-> http://localhost:5020

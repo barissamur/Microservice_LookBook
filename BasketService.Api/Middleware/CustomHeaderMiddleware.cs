@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace OcelotApiGateway.Api.Middleware;
- 
+
+
 public class CustomHeaderMiddleware
 {
     private readonly RequestDelegate _next;

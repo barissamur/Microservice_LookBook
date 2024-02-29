@@ -88,11 +88,13 @@ if (app.Environment.IsDevelopment())
 // ocelot consul register
 // Uygulama ömrünü yönetmek için IHostApplicationLifetime alýn
 var lifetime = app.Services.GetRequiredService<IHostApplicationLifetime>();
-
-
+ 
 // Consul ile kayýt iþlemi
 app.RegisterWithConsul(lifetime, builder.Configuration);
+
+// middleware tüm servislerde olacak
 app.UseMiddleware<CustomHeaderMiddleware>();
+
 
 app.UseHttpsRedirection();
 
