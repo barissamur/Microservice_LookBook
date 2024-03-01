@@ -26,7 +26,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{13455E5D-04E6-4112-A248-6DD735D740E2}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
-		ServiceUrls.txt = ServiceUrls.txt
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "OrderService", "OrderService", "{6807D30C-5A48-4133-9D68-46741A98848B}"
@@ -40,6 +39,11 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BasketService", "BasketService", "{A43A6106-FE05-4182-B383-B543FB9B0ABD}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BasketService.Api", "BasketService.Api\BasketService.Api.csproj", "{07FC2119-23B2-474E-93B0-40F502EA4AC6}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "info", "info", "{14225B75-D7E6-4399-99CB-720A3919DEBB}"
+	ProjectSection(SolutionItems) = preProject
+		ServiceUrls.txt = ServiceUrls.txt
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

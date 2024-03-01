@@ -18,7 +18,7 @@ namespace LookBook.Web.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
+        public IActionResult Login()
         {
             return View();
         }
