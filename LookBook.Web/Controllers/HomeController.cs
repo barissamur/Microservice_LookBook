@@ -1,4 +1,5 @@
 using LookBook.Web.Models;
+using LookBook.Web.Services;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 
@@ -7,10 +8,13 @@ namespace LookBook.Web.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
+        private readonly IdentityService _identityService;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger
+            , IdentityService identityService)
         {
             _logger = logger;
+            _identityService = identityService;
         }
 
         public IActionResult Index()
@@ -21,6 +25,36 @@ namespace LookBook.Web.Controllers
         public IActionResult Login()
         {
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Login(string userName, string password)
+        {
+            try
+            {
+                var token = await _identityService.LoginAsync(userName, password);
+
+                if (!string.IsNullOrEmpty(token))
+                {
+                    // Giriþ baþarýlý, ana sayfaya yönlendir
+                    return RedirectToAction("Index");
+                }
+                else
+                {
+                    // Token boþ döndü, giriþ baþarýsýz
+                    ViewBag.ErrorMessage = "Login failed. Please check your credentials and try again.";
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                // Log the error
+                _logger.LogError(ex, "Login failed for user {Username}", userName);
+
+                // Hata mesajý ile View'ý tekrar göster
+                ViewBag.ErrorMessage = "An error occurred while processing your request. Please try again.";
+                return View();
+            }
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

@@ -20,7 +20,7 @@ builder.Services.AddHttpClient("BaseAdres", c =>
     c.BaseAddress = new Uri("https://localhost:5000/v1/");
  });
 
-
+ 
 
 
 // Add services to the container.
