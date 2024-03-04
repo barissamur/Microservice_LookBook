@@ -94,42 +94,54 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseRouting();
 
 //ocelot servise giderken header'a eklenecekler
 app.Use(async (context, next) =>
 {
-    if (context.Request.Headers.TryGetValue("Authorization", out var token))
+    string tokenValue = null;
+
+    if (context.Request.Headers.TryGetValue("Authorization", out var headerValue))
+        tokenValue = headerValue.ToString().Split(" ").Last().Trim();
+
+    else if (context.Request.Cookies.TryGetValue("Authorization", out var cookieValue))
+        tokenValue = cookieValue.Trim();
+
+
+    if (!string.IsNullOrEmpty(tokenValue))
     {
-        token = token.ToString().Substring("Bearer ".Length).Trim();
+        if (tokenValue.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
+        {
+            tokenValue = tokenValue.Substring("Bearer ".Length).Trim();
+        }
 
         var handler = new JwtSecurityTokenHandler();
-        var jsonToken = handler.ReadToken(token) as JwtSecurityToken;
+        var jsonToken = handler.ReadToken(tokenValue) as JwtSecurityToken;
 
         var userId = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "nameid")?.Value;
         var userName = jsonToken?.Claims.FirstOrDefault(claim => claim.Type == "unique_name")?.Value;
 
         if (!string.IsNullOrEmpty(userId))
-            context.Request.Headers.Add("X-User-Id", userId);
-
+        {
+            context.Request.Headers["X-User-Id"] = userId;
+        }
 
         if (!string.IsNullOrEmpty(userName))
-            context.Request.Headers.Add("X-User-Name", userName);
+        {
+            context.Request.Headers["X-User-Name"] = userName;
+        }
 
-
-        context.Request.Headers.Add("X-Ocelot-Secret", "fromOcelot");
-
+        context.Request.Headers["X-Ocelot-Secret"] = "fromOcelot";
     }
 
     await next.Invoke();
 });
 
 
-
-app.UseAuthentication();
-app.UseAuthorization();
-
-app.UseRouting();
-
+ 
 // custom middleware'lar burada
 app.UseMiddleware<TokenMiddleware>();
 app.UseMiddleware<RedirectOn401Middleware>();

@@ -64,7 +64,7 @@ namespace IdentityServer.Api.Controller
                 var token = _tokenService.GenerateJwtToken(user);
 
                 _logger.LogInformation("User {UserName} logged in at {Time}.", model.UserName, DateTime.UtcNow);
-                return Ok(new { Token = token, Message = "Login successful" });
+                return Ok(token);
             }
             else
             {

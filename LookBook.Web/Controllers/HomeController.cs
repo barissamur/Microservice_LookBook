@@ -45,7 +45,9 @@ namespace LookBook.Web.Controllers
                         Expires = DateTime.UtcNow.AddDays(1) // Cookie'nin geçerlilik süresi
                     };
 
+                    // "Bearer" önekini çýkartýp yalnýzca token'ý sakla
                     Response.Cookies.Append("Authorization", $"Bearer {token}", cookieOptions);
+
 
                     // Ana sayfaya yönlendir
                     return RedirectToAction("Index");
