@@ -36,7 +36,18 @@ namespace LookBook.Web.Controllers
 
                 if (!string.IsNullOrEmpty(token))
                 {
-                    // Giriþ baþarýlý, ana sayfaya yönlendir
+                    // Giriþ baþarýlý, token'ý cookie olarak ayarla
+                    var cookieOptions = new CookieOptions
+                    {
+                        HttpOnly = true, // Cookie'ye sadece HTTP üzerinden eriþilebilir
+                        Secure = true,   // Cookie'yi yalnýzca güvenli baðlantýlar üzerinden gönder
+                        IsEssential = true, // Cookie, uygulamanýn çalýþmasý için gerekli
+                        Expires = DateTime.UtcNow.AddDays(1) // Cookie'nin geçerlilik süresi
+                    };
+
+                    Response.Cookies.Append("Authorization", $"Bearer {token}", cookieOptions);
+
+                    // Ana sayfaya yönlendir
                     return RedirectToAction("Index");
                 }
                 else
@@ -56,6 +67,7 @@ namespace LookBook.Web.Controllers
                 return View();
             }
         }
+
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

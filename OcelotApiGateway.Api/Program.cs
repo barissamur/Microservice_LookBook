@@ -1,5 +1,6 @@
 
 using BookService.Api.Aggregator;
+using LookBook.Web.Middleware;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Ocelot.DependencyInjection;
@@ -18,9 +19,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddHttpClient("BaseAdres", c =>
 {
     c.BaseAddress = new Uri("https://localhost:5000/v1/");
- });
+});
 
- 
+
 
 
 // Add services to the container.
@@ -129,7 +130,9 @@ app.UseAuthorization();
 
 app.UseRouting();
 
+// custom middleware'lar burada
 app.UseMiddleware<TokenMiddleware>();
+app.UseMiddleware<RedirectOn401Middleware>();
 
 await app.UseOcelot();
 
