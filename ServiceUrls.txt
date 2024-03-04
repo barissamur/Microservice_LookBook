@@ -7,3 +7,5 @@ IdentityServer.Api		-> http://localhost:5005		-> MSSQL
 BookService.Api		    -> http://localhost:5010		-> MongoDB
 OrderService.Api		-> http://localhost:5015		-> PostgreSQL
 BasketService.Api		-> http://localhost:5020		-> Redis
+
+Web						-> http://localhost:5050

@@ -13,9 +13,9 @@ var serviceUrls = builder.Configuration.GetSection("ServiceUrls").Get<Dictionary
 builder.Services.AddHttpClient();
 
 // Özel HttpClient yapýlandýrmalarý
-builder.Services.AddHttpClient("IdentityService", client =>
+builder.Services.AddHttpClient("BaseUrl", client =>
 {
-    client.BaseAddress = new Uri(serviceUrls["IdentityService"]);
+    client.BaseAddress = new Uri(serviceUrls["BaseAddress"]);
 });
 
 // IdentityService'yi DI konteynerine ekleyin
@@ -37,6 +37,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
